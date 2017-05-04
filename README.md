@@ -23,7 +23,7 @@ by Mathieu Bourgey, _Ph.D_
 
 ## Introduction
 
-This workshop will show you how to launch individual first steps of a DNA-Seq pipeline
+The workshop is focused on the application of bioinformatics analysis to provide genomics oriented medecine. In most of the case this type of approach focus on exome sequencing. In more speecific case, for example cancer, the analysis will focus on whole genome. In both the cases the analysis is very similar and the main differences are the use of restricted area of  search for the different steps. In this practical we will show you how to launch individual first steps of a DNA-Seq pipeline which apply for both exome and whole genome data.
 
 We will be working on a 1000 genome sample, NA12878. You can find the whole raw data on the 1000 genome website:
 <http://www.1000genomes.org/data>
@@ -37,7 +37,6 @@ NA12878 is the child of the trio while NA12891 and NA12892 are her parents.
 
 If you finish early, feel free to perform the same steps on the other two individuals: NA12891 & NA12892. 
 
-[The analysis of NA12891 & NA12892 will be done during the Integrated Assignment session](https://github.com/bioinformatics-ca/bioinformatics-ca.github.io/blob/master/2016_workshops/ht-seq/informatics_on_high_throughput_sequencing_data_2016.md#assignment)
 
 For practical reasons we subsampled the reads from the sample because running the whole dataset would take way too much time and resources.
 We're going to focus on the reads extracted from a 300 kbp stretch of chromosome 1
@@ -50,9 +49,9 @@ We're going to focus on the reads extracted from a 300 kbp stretch of chromosome
 
 ## Original Setup
 
-### Amazon node
+### Compute Canada HPC server
 
-Read these [directions] (http://bioinformatics-ca.github.io/logging_into_the_Amazon_cloud/) for information on how to log in to your assigned Amazon node. 
+Read these [directions] (https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/scripts/logging_into_the_Compute_Canada_HPC.md) for information on how to log into your assigned working node. 
 
 ### Software requirements
 
@@ -70,19 +69,23 @@ These are all already installed, but here are the original links.
 
 ```
 #set up
-export SOFT_DIR=/usr/local/
-export WORK_DIR=~/workspace/HTseq/Module3/
-export TRIMMOMATIC_JAR=$SOFT_DIR/Trimmomatic-0.36/trimmomatic-0.36.jar
-export PICARD_JAR=$SOFT_DIR/picard/picard.jar
-export GATK_JAR=$SOFT_DIR/GATK/GenomeAnalysisTK.jar
-export BVATOOLS_JAR=$SOFT_DIR/bvatools/bvatools-1.6-full.jar
-export REF=$WORK_DIR/reference/
+echo "export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6" >> ~/.bashrc
+echo "module use $MUGQIC_INSTALL_HOME/modulefiles"  >> ~/.bashrc
+
+source ~/.bashrc
+
+export REF=$MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/
+export WORK_DIR="~/bfx_genomic_medecine/module2"
+
+module load mugqic/java/openjdk-jdk1.8.0_72 mugqic/bvatools/1.6 mugqic/samtools/1.4 
+module load mugqic/bwa/0.7.12 mugqic/GenomeAnalysisTK/3.7 mugqic/picard/1.123 
+module load mugqic/trimmomatic/0.36
 
 
 rm -rf $WORK_DIR
 mkdir -p $WORK_DIR
 cd $WORK_DIR
-ln -s ~/CourseData/HT_data/Module3/* .
+ln -s /home/partage/genomic_medecine/Module2/* .
 ```
 
 ### Data files
@@ -104,14 +107,14 @@ ROOT
 ### Cheat sheets
 
 * [Unix comand line cheat sheet](http://sites.tufts.edu/cbi/files/2013/01/linux_cheat_sheet.pdf)
-* [commands file of this module](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/scripts/commands.sh)
+* [commands file of this module](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/scripts/commands.sh)
 
 
 ## First data glance
 
 So you've just received an email saying that your data is ready for download from the sequencing center of your choice.
 
-**What should you do?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_data.md)
+**What should you do?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_data.md)
 
 
 ### Fastq files
@@ -127,14 +130,14 @@ zless -S raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz
 
 These are fastq file. 
 
-**Could you descride the fastq format?** [Solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_fastq1.md)
+**Could you descride the fastq format?** [Solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_fastq1.md)
 
 ```
 zcat raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz | head -n4
 zcat raw_reads/NA12878/NA12878_CBW_chr1_R2.fastq.gz | head -n4
 ```
 
-**What was special about the output and why was it like that?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_fastq2.md)
+**What was special about the output and why was it like that?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_fastq2.md)
 
 
 You could also count the reads
@@ -151,7 +154,7 @@ We found  56512 reads
 zgrep -c "^@" raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz
 ```
 
-[solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_fastq3.md)
+[solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_fastq3.md)
 
 
 ### Quality
@@ -170,12 +173,12 @@ java -Xmx1G -jar ${BVATOOLS_JAR} readsqc \
   --threads 2 --regionName ACTL8 --output originalQC/
 ```
 
-open a web browser on your laptop, and navigate to `http://cbwXX.dyndns.info/`, where `XX` is the id of your node. You should be able to find there the directory hierarchy under `~/workspace/` on your node. open ```originalQC``` folder and open the images.
+TOCHANGE scp or ssh -X open a web browser on your laptop, and navigate to `http://cbwXX.dyndns.info/`, where `XX` is the id of your node. You should be able to find there the directory hierarchy under `~/workspace/` on your node. open ```originalQC``` folder and open the images.
 
 
 **What stands out in the graphs?**
 
-[solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_fastqQC1.md)
+[solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_fastqQC1.md)
 
 
 All the generated graphics have their uses. This being said 2 of them are particularly useful to get an overal picture of how good or bad a run went. 
@@ -183,12 +186,12 @@ All the generated graphics have their uses. This being said 2 of them are partic
 
 These are the Quality box plots 
 
-![Quality box plots](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/img/QualityBoxPlot.png?raw=true)
+![Quality box plots](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/QualityBoxPlot.png?raw=true)
 
 
 and the nucleotide content graphs.
 
-![Nucleotide content](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/img/nucleotide_content.png?raw=true)
+![Nucleotide content](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/nucleotide_content.png?raw=true)
 
 
 The Box plot shows the quality distribution of your data. The Graph goes > 100 because both ends are appended one after the other.
@@ -196,11 +199,11 @@ The Box plot shows the quality distribution of your data. The Graph goes > 100 b
 
 The quality of a base is computated using the Phread quality score.
 
-![Phred quality score formula](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/img/phred_formula.png?raw=true)
+![Phred quality score formula](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/phred_formula.png?raw=true)
 
 The formula outputs an integer that is encoded using an [ASCII](http://en.wikipedia.org/wiki/ASCII) table. 
 
-![ASCII table](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/img/ascii_table.png?raw=true)
+![ASCII table](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/ascii_table.png?raw=true)
 
 
 The way the lookup is done is by taking the the phred score adding 33 and using this number as a lookup in the table. The Wikipedia entry for the [FASTQ format](http://en.wikipedia.org/wiki/FASTQ_format) has a summary of the varying values.
@@ -229,7 +232,7 @@ We can look at the adapters
 cat $REF/adapters.fa
 ```
 
-**Why are there 2 different ones ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_trim1.md)
+**Why are there 2 different ones ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_trim1.md)
 
 
 Let's try removing them and see what happens.
@@ -250,7 +253,7 @@ java -Xmx2G -cp $TRIMMOMATIC_JAR org.usadellab.trimmomatic.TrimmomaticPE -thread
 cat reads/NA12878/NA12878.trim.out
 ```
 
-**What does Trimmomatic says it did ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_trim2.md)
+**What does Trimmomatic says it did ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_trim2.md)
 
 Let's look at the graphs now
 
@@ -263,10 +266,10 @@ java -Xmx1G -jar ${BVATOOLS_JAR} readsqc \
 ```
 
 **How does it look now?** 
-[solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_trim3.md)
+[solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_trim3.md)
 
 **Could we have done a better job?** 
-[solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_trim4.md)
+[solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_trim4.md)
 
 
 ## Alignment
@@ -275,7 +278,7 @@ The raw reads are now cleaned up of artefacts we can align the read to the refer
 
 In case you have multiple readsets or library you should align them separatly !
 
-**Why should this be done separatly?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_aln1.md)
+**Why should this be done separatly?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_aln1.md)
 
 ```
 mkdir -p alignment/NA12878/
@@ -291,12 +294,12 @@ bwa mem -M -t 2 \
   CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=500000
 ```
 
-**Why is it important to set Read Group information?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_aln2.md)
+**Why is it important to set Read Group information?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_aln2.md)
 
 The details of the fields can be found in the SAM/BAM specifications [Here](http://samtools.sourceforge.net/SAM1.pdf)
 For most cases, only the sample name, platform unit and library one are important. 
 
-**Why did we pipe the output of one to the other? Could we have done it differently?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_aln3.md)
+**Why did we pipe the output of one to the other? Could we have done it differently?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_aln3.md)
 
 
 
@@ -324,7 +327,7 @@ Try using [picards explain flag site](https://broadinstitute.github.io/picard/ex
 
 The flag is the 2nd column.
 
-**What do the flags of the first 4 reads mean?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_sambam1.md)
+**What do the flags of the first 4 reads mean?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_sambam1.md)
 
 Let's take the 3nd one and find it's pair.
 
@@ -335,7 +338,7 @@ samtools view alignment/NA12878/NA12878.sorted.bam | grep "1313:19317:61840"
 
 ```
 
-**Why did searching one name find both reads?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_sambam4.md)
+**Why did searching one name find both reads?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_sambam4.md)
 
 
 You can use samtools to filter reads as well.
@@ -349,7 +352,7 @@ samtools view -c -F4 alignment/NA12878/NA12878.sorted.bam
 
 ```
 
-**How many reads mapped and unmapped were there?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_sambam2.md)
+**How many reads mapped and unmapped were there?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_sambam2.md)
 
 
 Another useful bit of information in the SAM is the CIGAR string.
@@ -395,9 +398,9 @@ java -Xmx2G -jar ${GATK_JAR} \
 
 ```
 
-**How could we make this go faster?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_realign1.md)
+**How could we make this go faster?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_realign1.md)
 
-**How many regions did it think needed cleaning?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_realign2.md)
+**How many regions did it think needed cleaning?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_realign2.md)
 
 ### FixMates (optional)
 
@@ -420,12 +423,12 @@ This happened a lot with bwa backtrack. This happens less with bwa mem and recen
 
 As the step says, this is to mark duplicate reads.
 
-**What are duplicate reads ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_markdup1.md)
+**What are duplicate reads ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_markdup1.md)
 
-**What are they caused by ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_markdup2.md)
+**What are they caused by ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_markdup2.md)
 
 
-**What are the ways to detect them ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_markdup3.md)
+**What are the ways to detect them ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_markdup3.md)
 
 Here we will use picards approach:
 
@@ -442,13 +445,13 @@ We can look in the metrics output to see what happened.
 ```
 less alignment/NA12878/NA12878.sorted.dup.metrics
 ```
-**How many duplicates were there ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_markdup4.md)
+**How many duplicates were there ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_markdup4.md)
 
 This is very low, we expect in general <2%.
 
 We can see that it computed seperate measures for each library.
 
-**Why is this important to do and not combine everything ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_markdup5.md)
+**Why is this important to do and not combine everything ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_markdup5.md)
 
 
 ### Recalibration
@@ -535,9 +538,9 @@ java -Xmx2G -jar ${PICARD_JAR} CollectInsertSizeMetrics \
 less -S alignment/NA12878/NA12878.sorted.dup.recal.metric.insertSize.tsv
 ```
 
-**What is the insert size and the corresponding standard deviation ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_insert1.md)
+**What is the insert size and the corresponding standard deviation ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_insert1.md)
 
-**Is the insert-size important ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_insert2.md)
+**Is the insert-size important ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_insert2.md)
 
 ### Alignment metrics
 
@@ -560,7 +563,7 @@ less -S alignment/NA12878/NA12878.sorted.dup.recal.metric.alignment.tsv
 
 ```
 
-**What is the percent of aligned reads ?** [solution](https://github.com/mbourgey/CBW_HTseq_module3/blob/master/solutions/_alnMetrics1.md)
+**What is the percent of aligned reads ?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_alnMetrics1.md)
 
 ## Summary
 
