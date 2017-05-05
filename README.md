@@ -43,7 +43,7 @@ We're going to focus on the reads extracted from a 300 kbp stretch of chromosome
 
 |Chromosome|Start|End|
 |---|---|---|
-|chr1|17704860|18004860|
+|1|17704860|18004860|
 
 
 
@@ -79,7 +79,7 @@ export WORK_DIR="${HOME}/bfx_genomic_medecine/module2"
 
 module load mugqic/java/openjdk-jdk1.8.0_72 mugqic/bvatools/1.6 mugqic/samtools/1.4 
 module load mugqic/bwa/0.7.12 mugqic/GenomeAnalysisTK/3.7 mugqic/picard/1.123 
-module load mugqic/trimmomatic/0.36
+module load mugqic/trimmomatic/0.36 mugqic/R_Bioconductor/3.3.2_3.4
 
 
 rm -rf $WORK_DIR
@@ -93,16 +93,15 @@ ln -s /home/partage/genomic_medecine/Module2/* .
 The initial structure of your folders should look like this:   
 
 
-```
+``
 ROOT
 |-- raw_reads/               # fastqs from the center (down sampled)
     `-- NA12878/             # Child sample directory
     `-- NA12891/             # Father sample directory
     `-- NA12892/             # Mother sample directory
-`-- reference/               # hg19 reference and indexes
 `-- scripts/                 # command lines scripts
 `-- saved_results/           # precomputed final files
-```
+``
 
 ### Cheat sheets
 
@@ -414,7 +413,7 @@ This happened a lot with bwa backtrack. This happens less with bwa mem and recen
 
 ```
 #java -Xmx8G -jar ${PICARD_HOME}/FixMateInformation.jar \
-#VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=500000 \
+#VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1500000 \
 #INPUT=alignment/NA12878/NA12878.realigned.sorted.bam \
 #OUTPUT=alignment/NA12878/NA12878.matefixed.sorted.bam
 ```
@@ -499,7 +498,7 @@ Both GATK and BVATools have depth of coverage tools. We wrote our own in BVAtool
 Here we'll use the GATK one
 
 ```
-java  -Xmx2G -jar ${GATK_JAR} \
+java  -Xmx8G -jar ${GATK_JAR} \
   -T DepthOfCoverage \
   --omitDepthOutputAtEachBase \
   --summaryCoverageThreshold 10 \
@@ -510,7 +509,7 @@ java  -Xmx2G -jar ${GATK_JAR} \
   -R ${REF}/genome/Homo_sapiens.GRCh37.fa \
   -o alignment/NA12878/NA12878.sorted.dup.recal.coverage \
   -I alignment/NA12878/NA12878.sorted.dup.recal.bam \
-  -L  chr1:17700000-18100000
+  -L  1:17700000-18100000
 
 #### Look at the coverage
 less -S alignment/NA12878/NA12878.sorted.dup.recal.coverage.sample_interval_summary
@@ -524,7 +523,7 @@ Another way is to compare the mean to the median. If both are almost equal, your
 ### Insert Size
 
 ```
-java -Xmx2G -jar ${PICARD_HOME}/picard.jar CollectInsertSizeMetrics \
+java -Xmx8G -jar ${PICARD_HOME}/CollectInsertSizeMetrics.jar \
   VALIDATION_STRINGENCY=SILENT \
   REFERENCE_SEQUENCE=${REF}/genome/Homo_sapiens.GRCh37.fa \
   INPUT=alignment/NA12878/NA12878.sorted.dup.recal.bam \
@@ -548,7 +547,7 @@ You can try it if you want.
 We prefer the Picard way of computing metrics
 
 ```
-java -Xmx2G -jar ${PICARD_HOME}/picard.jar CollectAlignmentSummaryMetrics \
+java -Xmx8G -jar ${PICARD_HOME}/CollectAlignmentSummaryMetrics.jar \
   VALIDATION_STRINGENCY=SILENT \
   REFERENCE_SEQUENCE=${REF}/genome/Homo_sapiens.GRCh37.fa \
   INPUT=alignment/NA12878/NA12878.sorted.dup.recal.bam \
