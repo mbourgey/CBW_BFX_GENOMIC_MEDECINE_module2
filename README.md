@@ -72,10 +72,10 @@ These are all already installed, but here are the original links.
 echo "export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6" >> ~/.bashrc
 echo "module use $MUGQIC_INSTALL_HOME/modulefiles"  >> ~/.bashrc
 
-source ~/.bashrc
+source ${HOME}/.bashrc
 
 export REF=$MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/
-export WORK_DIR="~/bfx_genomic_medecine/module2"
+export WORK_DIR="${HOME}/bfx_genomic_medecine/module2"
 
 module load mugqic/java/openjdk-jdk1.8.0_72 mugqic/bvatools/1.6 mugqic/samtools/1.4 
 module load mugqic/bwa/0.7.12 mugqic/GenomeAnalysisTK/3.7 mugqic/picard/1.123 
@@ -167,10 +167,10 @@ Let's look at the data:
 
 ```
 mkdir -p originalQC/
-java -Xmx1G -jar ${BVATOOLS_JAR} readsqc \
+java -Xmx8G -jar ${BVATOOLS_JAR} readsqc \
   --read1 raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz \
   --read2 raw_reads/NA12878/NA12878_CBW_chr1_R2.fastq.gz \
-  --threads 2 --regionName ACTL8 --output originalQC/
+  --threads 1 --regionName ACTL8 --output originalQC/
 ```
 
 TOCHANGE scp or ssh -X open a web browser on your laptop, and navigate to `http://cbwXX.dyndns.info/`, where `XX` is the id of your node. You should be able to find there the directory hierarchy under `~/workspace/` on your node. open ```originalQC``` folder and open the images.
@@ -240,14 +240,14 @@ Let's try removing them and see what happens.
 ```
 mkdir -p reads/NA12878/
 
-java -Xmx2G -cp $TRIMMOMATIC_JAR org.usadellab.trimmomatic.TrimmomaticPE -threads 2 -phred33 \
+java -Xmx8G -cp $TRIMMOMATIC_JAR org.usadellab.trimmomatic.TrimmomaticPE -threads 2 -phred33 \
   raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz \
   raw_reads/NA12878/NA12878_CBW_chr1_R2.fastq.gz \
   reads/NA12878/NA12878_CBW_chr1_R1.t20l32.fastq.gz \
   reads/NA12878/NA12878_CBW_chr1_S1.t20l32.fastq.gz \
   reads/NA12878/NA12878_CBW_chr1_R2.t20l32.fastq.gz \
   reads/NA12878/NA12878_CBW_chr1_S2.t20l32.fastq.gz \
-  ILLUMINACLIP:${REF}/adapters.fa:2:30:15 TRAILING:20 MINLEN:32 \
+  ILLUMINACLIP:adapters.fa:2:30:15 TRAILING:20 MINLEN:32 \
   2> reads/NA12878/NA12878.trim.out
 
 cat reads/NA12878/NA12878.trim.out
@@ -259,10 +259,10 @@ Let's look at the graphs now
 
 ```
 mkdir -p postTrimQC/
-java -Xmx1G -jar ${BVATOOLS_JAR} readsqc \
+java -Xmx8G -jar ${BVATOOLS_JAR} readsqc \
   --read1 reads/NA12878/NA12878_CBW_chr1_R1.t20l32.fastq.gz \
   --read2 reads/NA12878/NA12878_CBW_chr1_R2.t20l32.fastq.gz \
-  --threads 2 --regionName ACTL8 --output postTrimQC/
+  --threads 1 --regionName ACTL8 --output postTrimQC/
 ```
 
 **How does it look now?** 
@@ -285,13 +285,13 @@ mkdir -p alignment/NA12878/
 
 bwa mem -M -t 2 \
   -R '@RG\tID:NA12878\tSM:NA12878\tLB:NA12878\tPU:runNA12878_1\tCN:Broad Institute\tPL:ILLUMINA' \
-  ${REF}/hg19.fa \
+  ${REF}/genome/bwa_index/Homo_sapiens.GRCh37.fa \
   reads/NA12878/NA12878_CBW_chr1_R1.t20l32.fastq.gz \
   reads/NA12878/NA12878_CBW_chr1_R2.t20l32.fastq.gz \
-  | java -Xmx2G -jar ${PICARD_JAR} SortSam \
+  | java -Xmx8G -jar ${PICARD_HOME}/SortSam.jar \
   INPUT=/dev/stdin \
   OUTPUT=alignment/NA12878/NA12878.sorted.bam \
-  CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=500000
+  CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=1500000
 ```
 
 **Why is it important to set Read Group information?** [solution](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/solutions/_aln2.md)
@@ -305,7 +305,7 @@ For most cases, only the sample name, platform unit and library one are importan
 
 ### Lane merging (optional)
 
-In case ywe generate multiple lane of sequencing or mutliple library. It is not practical to keep the data splited and all the reads should be merge into one massive file. 
+In case we generate multiple lane of sequencing or mutliple library. It is not practical to keep the data splited and all the reads should be merge into one massive file. 
 
 Since we identified the reads in the BAM with read groups, even after the merging, we can still identify the origin of each read.
 
@@ -382,16 +382,16 @@ It basically runs in 2 steps
 2- Realign them.
 
 ```
-java -Xmx2G  -jar ${GATK_JAR} \
+java -Xmx8G  -jar ${GATK_JAR} \
   -T RealignerTargetCreator \
-  -R ${REF}/hg19.fa \
+  -R ${REF}/genome/Homo_sapiens.GRCh37.fa \
   -o alignment/NA12878/realign.intervals \
   -I alignment/NA12878/NA12878.sorted.bam \
-  -L chr1
+  -L 1
 
-java -Xmx2G -jar ${GATK_JAR} \
+java -Xmx8G -jar ${GATK_JAR} \
   -T IndelRealigner \
-  -R ${REF}/hg19.fa \
+  -R ${REF}/genome/Homo_sapiens.GRCh37.fa \
   -targetIntervals alignment/NA12878/realign.intervals \
   -o alignment/NA12878/NA12878.realigned.sorted.bam \
   -I alignment/NA12878/NA12878.sorted.bam
@@ -413,7 +413,7 @@ This used to be a problem in the GATKs realigner, but they fixed it. It shouldn'
 This happened a lot with bwa backtrack. This happens less with bwa mem and recent GATK so we will skip today.
 
 ```
-#java -Xmx2G -jar ${PICARD_JAR} FixMateInformation \
+#java -Xmx8G -jar ${PICARD_HOME}/FixMateInformation.jar \
 #VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true SORT_ORDER=coordinate MAX_RECORDS_IN_RAM=500000 \
 #INPUT=alignment/NA12878/NA12878.realigned.sorted.bam \
 #OUTPUT=alignment/NA12878/NA12878.matefixed.sorted.bam
@@ -433,7 +433,7 @@ As the step says, this is to mark duplicate reads.
 Here we will use picards approach:
 
 ```
-java -Xmx2G -jar ${PICARD_JAR} MarkDuplicates \
+java -Xmx8G -jar ${PICARD_HOME}/MarkDuplicates.jar \
   REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=SILENT CREATE_INDEX=true \
   INPUT=alignment/NA12878/NA12878.realigned.sorted.bam \
   OUTPUT=alignment/NA12878/NA12878.sorted.dup.bam \
@@ -466,19 +466,17 @@ It runs in 2 steps,
 2- Correct the reads based on these metrics
 
 ```
-java -Xmx2G -jar ${GATK_JAR} \
+java -Xmx8G -jar ${GATK_JAR} \
   -T BaseRecalibrator \
-  -nct 2 \
-  -R ${REF}/hg19.fa \
-  -knownSites ${REF}/dbSNP_135_chr1.vcf.gz \
-  -L chr1:17700000-18100000 \
+  -R ${REF}/genome/Homo_sapiens.GRCh37.fa \
+  -knownSites ${REF}/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz \
+  -L 1:17700000-18100000 \
   -o alignment/NA12878/NA12878.sorted.dup.recalibration_report.grp \
   -I alignment/NA12878/NA12878.sorted.dup.bam
 
-java -Xmx2G -jar ${GATK_JAR} \
+java -Xmx8G -jar ${GATK_JAR} \
   -T PrintReads \
-  -nct 2 \
-  -R ${REF}/hg19.fa \
+  -R ${REF}/genome/Homo_sapiens.GRCh37.fa \
   -BQSR alignment/NA12878/NA12878.sorted.dup.recalibration_report.grp \
   -o alignment/NA12878/NA12878.sorted.dup.recal.bam \
   -I alignment/NA12878/NA12878.sorted.dup.bam
@@ -509,7 +507,7 @@ java  -Xmx2G -jar ${GATK_JAR} \
   --summaryCoverageThreshold 50 \
   --summaryCoverageThreshold 100 \
   --start 1 --stop 500 --nBins 499 -dt NONE \
-  -R ${REF}/hg19.fa \
+  -R ${REF}/genome/Homo_sapiens.GRCh37.fa \
   -o alignment/NA12878/NA12878.sorted.dup.recal.coverage \
   -I alignment/NA12878/NA12878.sorted.dup.recal.bam \
   -L  chr1:17700000-18100000
@@ -526,9 +524,9 @@ Another way is to compare the mean to the median. If both are almost equal, your
 ### Insert Size
 
 ```
-java -Xmx2G -jar ${PICARD_JAR} CollectInsertSizeMetrics \
+java -Xmx2G -jar ${PICARD_HOME}/picard.jar CollectInsertSizeMetrics \
   VALIDATION_STRINGENCY=SILENT \
-  REFERENCE_SEQUENCE=${REF}/hg19.fa \
+  REFERENCE_SEQUENCE=${REF}/genome/Homo_sapiens.GRCh37.fa \
   INPUT=alignment/NA12878/NA12878.sorted.dup.recal.bam \
   OUTPUT=alignment/NA12878/NA12878.sorted.dup.recal.metric.insertSize.tsv \
   HISTOGRAM_FILE=alignment/NA12878/NA12878.sorted.dup.recal.metric.insertSize.histo.pdf \
@@ -550,9 +548,9 @@ You can try it if you want.
 We prefer the Picard way of computing metrics
 
 ```
-java -Xmx2G -jar ${PICARD_JAR} CollectAlignmentSummaryMetrics \
+java -Xmx2G -jar ${PICARD_HOME}/picard.jar CollectAlignmentSummaryMetrics \
   VALIDATION_STRINGENCY=SILENT \
-  REFERENCE_SEQUENCE=${REF}/hg19.fa \
+  REFERENCE_SEQUENCE=${REF}/genome/Homo_sapiens.GRCh37.fa \
   INPUT=alignment/NA12878/NA12878.sorted.dup.recal.bam \
   OUTPUT=alignment/NA12878/NA12878.sorted.dup.recal.metric.alignment.tsv \
   METRIC_ACCUMULATION_LEVEL=LIBRARY
