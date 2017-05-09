@@ -185,25 +185,23 @@ All the generated graphics have their uses. This being said 2 of them are partic
 
 These are the Quality box plots 
 
-![Quality box plots](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/QualityBoxPlot.png?raw=true)
+<img src="https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/QualityBoxPlot.png?raw=true" alt="Quality box plots" width="750" />  
 
 
 and the nucleotide content graphs.
 
-![Nucleotide content](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/nucleotide_content.png?raw=true)
-
+<img src="https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/nucleotide_content.png?raw=true" alt="nucleotide_content" width="750" />  
 
 The Box plot shows the quality distribution of your data. The Graph goes > 100 because both ends are appended one after the other.
 
 
 The quality of a base is computated using the Phread quality score.
 
-![Phred quality score formula](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/phred_formula.png?raw=true)
+<img src="https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/phred_formula.png?raw=true" alt="phred_formula" width="750" />  
 
 The formula outputs an integer that is encoded using an [ASCII](http://en.wikipedia.org/wiki/ASCII) table. 
 
-![ASCII table](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/ascii_table.png?raw=true)
-
+<img src="https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/img/ascii_table.png?raw=true" alt="ascii_table" width="750" />  
 
 The way the lookup is done is by taking the the phred score adding 33 and using this number as a lookup in the table. The Wikipedia entry for the [FASTQ format](http://en.wikipedia.org/wiki/FASTQ_format) has a summary of the varying values.
 
