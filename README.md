@@ -3,8 +3,8 @@ layout: tutorial_page
 permalink: /Bioinformatics-for-genomics-medecine_2017_module2_lab
 title: BFX-Genomics-medecine Lab 2
 header1: Workshop Pages for Students
-header2: Bioinformatics for Genomics Medecine Module 2 Lab
-image: /site_images/CBW-CSHL-graphic-square.png
+header2: Bioinformatics for Genomics Medicine Module 2 Lab
+image: /site_images/CBW_population_icon.jpg
 home: https://bioinformaticsdotca.github.io/
 ---
 
@@ -14,7 +14,7 @@ home: https://bioinformaticsdotca.github.io/
 
 -----------------------
 
-# CBW  BFX-Genomics-medecin Module 2 - Genome Alignment   
+# CBW  BFX-Genomics-medicine Module 2 - Genome Alignment   
 
  
 by Mathieu Bourgey, _Ph.D_
@@ -51,7 +51,7 @@ We're going to focus on the reads extracted from a 300 kbp stretch of chromosome
 
 ### Compute Canada HPC server
 
-Read these [directions] (https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/scripts/logging_into_the_Compute_Canada_HPC.md) for information on how to log into your assigned working node. 
+Read these [directions](https://github.com/mbourgey/CBW_BFX_GENOMIC_MEDECINE_module2/blob/master/scripts/logging_into_the_Compute_Canada_HPC.md) for information on how to log into your assigned working node. 
 
 ### Software requirements
 
