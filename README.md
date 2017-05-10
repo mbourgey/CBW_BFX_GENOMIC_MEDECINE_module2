@@ -172,8 +172,15 @@ java -Xmx8G -jar ${BVATOOLS_JAR} readsqc \
   --threads 1 --regionName ACTL8 --output originalQC/
 ```
 
-TOCHANGE scp or ssh -X open a web browser on your laptop, and navigate to `http://cbwXX.dyndns.info/`, where `XX` is the id of your node. You should be able to find there the directory hierarchy under `~/workspace/` on your node. open ```originalQC``` folder and open the images.
+On Linux/Mac
+TOCHANGE
+```
+cd /path/to/destination/folder 
+scp username@workshop103.ccs.usherbrooke.ca:path/to/destination/myfile.txt .
+```
+On Windows
 
+Use WinSCP
 
 **What stands out in the graphs?**
 
