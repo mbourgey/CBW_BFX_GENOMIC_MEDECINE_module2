@@ -1,6 +1,6 @@
 ---
 layout: tutorial_page
-permalink: /Bioinformatics-for-genomics-medecine_2017_module2_lab
+permalink: /Bioinformatics-for-genomics-medecine_2018_module2_lab
 title: BFX-Genomics-medecine Lab 2
 header1: Workshop Pages for Students
 header2: Bioinformatics for Genomics Medicine Module 2 Lab
@@ -172,11 +172,10 @@ java -Xmx8G -jar ${BVATOOLS_JAR} readsqc \
   --threads 1 --regionName ACTL8 --output originalQC/
 ```
 
-On Linux/Mac
-TOCHANGE
+On Linux/Mac (on a local terminal)
 ```
 cd /path/to/destination/folder 
-scp username@workshop103.ccs.usherbrooke.ca:path/to/destination/myfile.txt .
+scp -r stud40@workshop2018a.vhost37.genap.ca:bfx_genomic_medecine/module2/originalQC .
 ```
 On Windows
 
