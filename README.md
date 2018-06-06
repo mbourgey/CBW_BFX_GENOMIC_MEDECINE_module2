@@ -175,7 +175,7 @@ java -Xmx8G -jar ${BVATOOLS_JAR} readsqc \
 On Linux/Mac (on a local terminal)
 ```
 cd /path/to/destination/folder 
-scp -r stud40@workshop2018a.vhost37.genap.ca:bfx_genomic_medecine/module2/originalQC .
+scp -r studXX@workshop2018a.vhost37.genap.ca:bfx_genomic_medecine/module2/originalQC .
 ```
 On Windows
 
