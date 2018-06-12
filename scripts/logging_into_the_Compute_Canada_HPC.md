@@ -4,7 +4,7 @@ This document provides information on how to get started with using the Mammouth
 
 ## Connecting to the Mammouth HPC scheduler:
 
-Host: stud39@workshop2018a.vhost37.genap.ca
+Host: workshop2018a.vhost37.genap.ca
 
 Login / Password: Provided to you on a separate piece of paper at the beginning of the workshop.
 
