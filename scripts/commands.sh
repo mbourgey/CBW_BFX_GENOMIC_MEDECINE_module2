@@ -15,7 +15,7 @@ module load mugqic/trimmomatic/0.36 mugqic/R_Bioconductor/3.3.2_3.4
 rm -rf $WORK_DIR
 mkdir -p $WORK_DIR
 cd $WORK_DIR
-ln -s /home/partage/genomic_medecine/Module2/* .
+ln -s /home/stud40/genomic_medecine/Module2/* .
 #zless -S raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz
 
 zcat raw_reads/NA12878/NA12878_CBW_chr1_R1.fastq.gz | head -n4

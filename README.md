@@ -85,7 +85,7 @@ module load mugqic/trimmomatic/0.36 mugqic/R_Bioconductor/3.3.2_3.4
 rm -rf $WORK_DIR
 mkdir -p $WORK_DIR
 cd $WORK_DIR
-ln -s /home/partage/genomic_medecine/Module2/* .
+ln -s /home/stud40/genomic_medecine/Module2/* .
 ```
 
 ### Data files
