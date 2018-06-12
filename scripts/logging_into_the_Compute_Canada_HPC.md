@@ -14,7 +14,7 @@ Open a terminal and use the following command from the command line: ssh studXX@
 
 ### Windows
 
-Connect to the stud39@workshop2018a.vhost37.genap.ca server using the Putty tool that you installed for this workshop.
+Connect to the studXX@workshop2018a.vhost37.genap.ca server using the Putty tool that you installed for this workshop.
 
 ## Once you are logged in
 
