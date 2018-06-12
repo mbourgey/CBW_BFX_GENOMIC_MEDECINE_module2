@@ -4,21 +4,19 @@ This document provides information on how to get started with using the Mammouth
 
 ## Connecting to the Mammouth HPC scheduler:
 
-Host: workshop103.ccs.usherbrooke.ca
+Host: stud39@workshop2018a.vhost37.genap.ca
 
 Login / Password: Provided to you on a separate piece of paper at the beginning of the workshop.
 
 ### Linux/Mac
 
-Open a terminal and use the following command from the command line: ssh username@workshop103.ccs.usherbrooke.ca The username and password are the ones that we provided on a separate piece of paper.
+Open a terminal and use the following command from the command line: ssh studXX@workshop2018a.vhost37.genap.ca The username and password are the ones that we provided on a separate piece of paper.
 
 ### Windows
 
-Connect to the workshop103.ccs.usherbrooke.ca server using the Putty tool that you installed for this workshop.
+Connect to the stud39@workshop2018a.vhost37.genap.ca server using the Putty tool that you installed for this workshop.
 
 ## Once you are logged in
-
-Your environment variables have been set to ensure that the CVMFS modules will always be accessible to you and to the jobs you will launch. 
 
 When you are logged on a Compute  Canada HPC server you are on a logging node which is only dedicated to data transfer, to run very small jobs and to launch job on the scheduler.  
 
@@ -43,7 +41,7 @@ All available software are organized as modules that you can load. For example, 
 > javac 1.8.0_72-ea
 
 
-## Downloading a file from Guillimin to your computer
+## Downloading a file from Mamouth server to your computer
 
 ### Linux/Mac
 
@@ -51,7 +49,7 @@ Use the following from the command line on your local computer:
 
 ```
 cd /path/to/destination/folder 
-scp username@workshop103.ccs.usherbrooke.ca:path/to/destination/myfile.txt .
+scp studXX@workshop2018a.vhost37.genap.ca:path/to/destination/myfile.txt .
 ```
 
 
@@ -59,13 +57,13 @@ To download a full directory, add the -r option
 
 ```
 cd /path/to/destination/folder 
-scp -r username@workshop103.ccs.usherbrooke.ca:path/to/destination/myfolder .
+scp -r studXX@workshop2018a.vhost37.genap.ca:path/to/destination/myfolder .
 ```
 
 
 ### Windows
 
-Use the WinSCP software that you installed for this workshop, connecting to `workshop103.ccs.usherbrooke.ca` .
+Use the WinSCP software that you installed for this workshop, connecting to`workshop2018a.vhost37.genap.ca` .
 
 
 
